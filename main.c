@@ -1,17 +1,19 @@
-#include <stdio.h>
-#include <readline/readline.h>
-#include <readline/history.h>
-#include <unistd.h>
-#include <stdlib.h>
+#include "minihsell.h"
 
 void print(char *token, int start, int end)
 {
-  if (token[start] == '>')
-    write(1,"GREAT -> ",9);
+  if (token[start] == '>' && token[start + 1] == '>')
+    write(1,"APPEND = ", 9);
+  else if (token[start] == '<' && token[start + 1] == '<') 
+    write(1,"HEREDOC = ", 10);
+  else if (token[start] == '>')
+    write(1,"REDIR_OUT = ", 12);
   else if (token[start] == '|')
-    write(1,"PIPE -> ",8);
+    write(1,"PIPE = ", 7);
+  else if (token[start] == '<')
+    write(1,"REDIR_IN = ", 11);   
   else
-    write(1,"WORD -> ",8);
+    write(1,"WORD = ",8);
   while (start < end)
   {
     write(1,&token[start],1);
@@ -55,9 +57,9 @@ void lexer(char *s)
   int start;
   int token;
   
-  i = 0;
+  i = -1;
   token = 0;
-  while (s[i])
+  while (s[++i])
   {
     start = i;
     while (is_alfa(s[i]) && s[i])
@@ -73,8 +75,7 @@ void lexer(char *s)
     if (s[i] == '|' || s[i] == '>' || s[i] == '<')
       i += is_special(s,i);
     if (!s[i])
-      break;
-    i++;  
+      break; 
   }
 }
 
