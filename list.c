@@ -21,3 +21,6 @@ t_token *new_token(t_token_type type, char *token, int start, int end)
 
     return (node);
 }
+
+
+//cc main.c -lreadline
