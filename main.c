@@ -85,7 +85,7 @@ int main()
 
     while (1)
     {
-        line = readline("$Mineshell -> ");
+        line = readline("$Mine😎😎 -> ");
         if (!line)
             exit(0);
         if (line != "")    
