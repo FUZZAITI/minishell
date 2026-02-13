@@ -1,83 +1,88 @@
 #include "minihsell.h"
 
-void print(char *token, int start, int end)
+void print(t_token **list, char *word, char *type)
 {
-  if (token[start] == '>' && token[start + 1] == '>')
-    write(1,"APPEND = ", 9);
-  else if (token[start] == '<' && token[start + 1] == '<') 
-    write(1,"HEREDOC = ", 10);
-  else if (token[start] == '>')
-    write(1,"REDIR_OUT = ", 12);
-  else if (token[start] == '|')
-    write(1,"PIPE = ", 7);
-  else if (token[start] == '<')
-    write(1,"REDIR_IN = ", 11);   
-  else
-    write(1,"WORD = ",8);
-  while (start < end)
-  {
-    write(1,&token[start],1);
-    start++;
-  }
-  write(1,"\n",1);
+  printf("%s = ",type);
+  printf("%s\n",word);
+  
 }
 
-
-int is_special(char *str, int i)
-{
-  if (str[i] == '>' && str[i + 1] == '>')
-    {
-      print(">>",0,2);
-      return (1);
-    }
-  else if (str[i] == '<' && str[i + 1] == '<')
-    {
-      print("<<",0,2);
-      return (1);
-    }
-  else if (str[i] == '>')
-    print(">",0,1);
-  else if (str[i] == '<')
-    print("<",0,1);
-  else if (str[i] == '|')
-    print("|",0,1);
-  return (0);  
+int handle_word(t_token **list, char *str) {
+    int i = 0;
+    while (str[i] && !strchr(" |<>\"'", str[i]))
+        i++;
+    
+    char *word = strndup(str, i); 
+    print(list, word, "WORD");
+    free(word);
+    return (i);
 }
 
-int is_alfa(char c)
-{
-  if (c == '|'  || c == '>' || c == '<' || c == ' ' || c == '\t')
-    return (0);
-  return (1);    
-}
-
-void lexer(char *s)
+int handle_redirect(t_token **tokens, char *str)
 {
   int i;
-  int start;
-  int token;
+  char *word;
   
-  i = -1;
-  token = 0;
-  while (s[++i])
+  i = 0;
+  if (str[i] == '>' && str[i + 1] == '>')
   {
-    start = i;
-    while (is_alfa(s[i]) && s[i])
-    {
-      token = 1;
-      i++;
-    }
-    if (token)
-    {
-      print(s, start, i);
-      token = 0;
-    }
-    if (s[i] == '|' || s[i] == '>' || s[i] == '<')
-      i += is_special(s,i);
-    if (!s[i])
-      break; 
+    word = strndup(str, (i + 2));
+    print(tokens, word, "APPEND");
+    return (2);
   }
+  else if (str[i] == '<' && str[i + 1] == '<')
+  {
+    word = strndup(str, (i + 2));
+    print(tokens, word, "HEREDOC");
+    return (2);
+  }
+  else if (str[i] == '>')
+  {
+    word = strndup(str, (i + 1));
+    print(tokens, word, "REDIR_OUT");
+  }
+  else if (str[i] == '<')
+  {
+    word = strndup(str, (i + 1));
+    print(tokens, word, "REDIR_IN");
+  }
+  return (i + 1);
 }
+
+int handle_quotes(t_token **tokens, char *str)
+{
+  int i;
+  char *word;
+  
+  i = 1;
+  while (str[i] && str[i] != str[0])
+    i++;
+  word = strndup(str, (i + 1)); 
+  print(tokens, word, "WORD");
+  free(word);
+  return (i + 1);  
+}
+
+t_token *lexer(char *input) {
+    int i = 0;
+    t_token *tokens = NULL;
+
+    while (input[i]) {
+        while (input[i] == ' ' || (input[i] >= 9 && input[i] <= 13))
+            i++; 
+
+        if (input[i] == '|')
+            print(&tokens, "|", "PIPE"), i++;
+        else if (input[i] == '>' || input[i] == '<')
+            i += handle_redirect(&tokens, &input[i]);
+        else if (input[i] == '\'' || input[i] == '\"')
+            i += handle_quotes(&tokens, &input[i]);
+        else if (input[i])
+            i += handle_word(&tokens, &input[i]);
+    }
+    return (tokens);
+}
+
 
 int main()
 {
