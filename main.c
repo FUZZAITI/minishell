@@ -57,7 +57,11 @@ int handle_quotes(t_token **tokens, char *str)
   
   i = 1;
   while (str[i] && str[i] != str[0])
-    i++;
+    i++; 
+  if (str[i + 1] != ' ' && str[i + 1] != '|' && str[i + 1] != '<' && str[i + 1] != '>' && str[i + 1] != '\"' && str[i + 1] != '\'')
+    i++; 
+  while (str[i] && !strchr(" |<>\"'", str[i]))
+        i++;  
   word = strndup(str, (i + 1)); 
   print(tokens, word, "WORD");
   free(word);
@@ -91,11 +95,10 @@ int main()
 
     while (1)
     {
-        line = readline("$Mine😎😎 -> ");
+        line = readline("$Mine -> ");
         if (!line)
-            exit(0);
-        if (line != "")    
-            lexer(line);
+            exit(0);   
+        lexer(line);
         add_history(line);
         free(line);
     }
