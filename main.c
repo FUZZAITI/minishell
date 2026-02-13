@@ -46,6 +46,7 @@ int handle_redirect(t_token **tokens, char *str)
     word = strndup(str, (i + 1));
     print(tokens, word, "REDIR_IN");
   }
+  free(word);
   return (i + 1);
 }
 
