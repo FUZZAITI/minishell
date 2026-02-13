@@ -1,23 +1,26 @@
 #include "minihsell.h"
 
-void print(t_token **list, char *word, char *type)
+void add_token(t_token **list, char *word, char *type)
 {
   t_token *token = malloc(sizeof(t_token));
 
   token -> content = word;
   token -> type = type;
   token -> next = NULL;
-  printf("%s = ",token -> type);
-  printf("%s\n",token -> content );
+//  add_list(list, token);
+
+   printf("%s = ",token -> type);
+   printf("%s\n",token -> content );
 }
 
-int handle_word(t_token **list, char *str) {
+int handle_word(t_token **list, char *str) 
+{
     int i = 0;
     while (str[i] && !strchr(" |<>", str[i]))
         i++;
     
     char *word = strndup(str, i); 
-    print(list, word, "WORD");
+    add_token(list, word, "WORD");
     free(word);
     return (i);
 }
@@ -32,24 +35,24 @@ int handle_redirect(t_token **tokens, char *str)
   if (str[i] == '>' && str[i + 1] == '>')
   {
     word = strndup(str, (i + 2));
-    print(tokens, word, "APPEND");
+    add_token(tokens, word, "APPEND");
     return (2);
   }
   else if (str[i] == '<' && str[i + 1] == '<')
   {
     word = strndup(str, (i + 2));
-    print(tokens, word, "HEREDOC");
+    add_token(tokens, word, "HEREDOC");
     return (2);
   }
   else if (str[i] == '>')
   {
     word = strndup(str, (i + 1));
-    print(tokens, word, "REDIR_OUT");
+    add_token(tokens, word, "REDIR_OUT");
   }
   else if (str[i] == '<')
   {
     word = strndup(str, (i + 1));
-    print(tokens, word, "REDIR_IN");
+    add_token(tokens, word, "REDIR_IN");
   }
   free(word);
   return (i + 1);
@@ -68,12 +71,13 @@ int handle_quotes(t_token **tokens, char *str)
   while (str[i] && !strchr(" |<>\"'", str[i]))
         i++;  
   word = strndup(str, (i + 1)); 
-  print(tokens, word, "WORD");
+  add_token(tokens, word, "WORD");
   free(word);
   return (i + 1);  
 }
 
-t_token *lexer(char *input) {
+t_token *lexer(char *input) 
+{
     int i = 0;
     t_token *tokens = NULL;
 
@@ -82,7 +86,7 @@ t_token *lexer(char *input) {
             i++; 
 
         if (input[i] == '|')
-            print(&tokens, "|", "PIPE"), i++;
+            add_token(&tokens, "|", "PIPE"), i++;
         else if (input[i] == '>' || input[i] == '<')
             i += handle_redirect(&tokens, &input[i]);
         else if (input[i] == '\'' || input[i] == '\"')
@@ -93,11 +97,48 @@ t_token *lexer(char *input) {
     return (tokens);
 }
 
+void add_list(t_token **list,t_token *token)
+{
+  t_token *last;
+
+  if (!token) 
+        return;
+  if (*list == NULL)
+  {
+    *list = token;
+    return;
+  }
+  last = ft_lstlast(*list);
+  last -> next = token;
+}
+
+t_token	*ft_lstlast(t_token *lst)
+{
+	if (!lst)
+		return (NULL);
+	while (lst->next)
+		lst = lst->next;
+	return (lst);
+}
+
+/*
+void print_list(t_token **list)
+{
+  t_token *token;
+  while (*list)
+  {
+    token = list;
+    printf("%s = ",token -> type);
+    printf("%s\n",token -> content);
+  }
+  
+}
+*/
 
 int main()
 {
     char *line;
-
+    t_token *tokens_list;
     while (1)
     {
         line = readline("$Mine -> ");
@@ -105,6 +146,7 @@ int main()
             exit(0);   
         lexer(line);
         add_history(line);
+  //      print_list(tokens_list);
         free(line);
     }
 }
