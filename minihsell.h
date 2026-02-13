@@ -6,14 +6,17 @@
 #include <string.h>
 
 typedef enum e_type {
-    WORD,     
+    WORD,      
     PIPE,      
-    REDIRECT, 
+    APPEND,
+    HEREDOC,
+    REDIR_OUT,
+    REDIR_IN,  
     ENV        
 } t_type;
 
 typedef struct s_token {
     char            *content;
-    t_type          type;
+    char          *type;
     struct s_token  *next;
 } t_token;

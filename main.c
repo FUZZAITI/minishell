@@ -2,14 +2,18 @@
 
 void print(t_token **list, char *word, char *type)
 {
-  printf("%s = ",type);
-  printf("%s\n",word);
-  
+  t_token *token = malloc(sizeof(t_token));
+
+  token -> content = word;
+  token -> type = type;
+  token -> next = NULL;
+  printf("%s = ",token -> type);
+  printf("%s\n",token -> content );
 }
 
 int handle_word(t_token **list, char *str) {
     int i = 0;
-    while (str[i] && !strchr(" |<>\"'", str[i]))
+    while (str[i] && !strchr(" |<>", str[i]))
         i++;
     
     char *word = strndup(str, i); 
@@ -17,6 +21,7 @@ int handle_word(t_token **list, char *str) {
     free(word);
     return (i);
 }
+//while (str[i] && !strchr(" |<>\"'", str[i]))
 
 int handle_redirect(t_token **tokens, char *str)
 {
