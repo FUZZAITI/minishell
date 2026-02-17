@@ -137,6 +137,12 @@ t_token	*ft_lstlast(t_token *lst)
 	return (lst);
 }
 
+/*
+***************************
+$Mine -> 'aaa'sss|"ss"
+WORD = 'aaa'sss|
+WORD = "ss"
+*/
 
 int main()
 {
