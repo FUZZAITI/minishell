@@ -4,13 +4,10 @@ void add_token(t_token **list, char *word, char *type)
 {
   t_token *token = malloc(sizeof(t_token));
 
-  token -> content = word;
+  token -> content = strdup(word);
   token -> type = type;
   token -> next = NULL;
-//  add_list(list, token);
-
-   printf("%s = ",token -> type);
-   printf("%s\n",token -> content );
+  add_list(list, token);
 }
 
 int handle_word(t_token **list, char *str) 
@@ -24,7 +21,6 @@ int handle_word(t_token **list, char *str)
     free(word);
     return (i);
 }
-//while (str[i] && !strchr(" |<>\"'", str[i]))
 
 int handle_redirect(t_token **tokens, char *str)
 {
@@ -76,12 +72,32 @@ int handle_quotes(t_token **tokens, char *str)
   return (i + 1);  
 }
 
+void print_tokens(t_token *list)
+{
+  int i;
+
+  i = 0;
+  if (!list)
+  {
+    printf("Lista vazia!\n");
+    return;
+  }
+  while (list != NULL)
+  {
+    printf("%s = ",list -> type);
+    printf("%s\n",list -> content );
+    list = list->next; 
+    i++;
+  }
+}
+
 t_token *lexer(char *input) 
 {
     int i = 0;
     t_token *tokens = NULL;
 
-    while (input[i]) {
+    while (input[i]) 
+    {
         while (input[i] == ' ' || (input[i] >= 9 && input[i] <= 13))
             i++; 
 
@@ -121,19 +137,6 @@ t_token	*ft_lstlast(t_token *lst)
 	return (lst);
 }
 
-/*
-void print_list(t_token **list)
-{
-  t_token *token;
-  while (*list)
-  {
-    token = list;
-    printf("%s = ",token -> type);
-    printf("%s\n",token -> content);
-  }
-  
-}
-*/
 
 int main()
 {
@@ -144,9 +147,10 @@ int main()
         line = readline("$Mine -> ");
         if (!line)
             exit(0);   
-        lexer(line);
+        tokens_list = lexer(line);
         add_history(line);
-  //      print_list(tokens_list);
+        print_tokens(tokens_list);
+        //dar o free***************
         free(line);
     }
 }
