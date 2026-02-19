@@ -31,3 +31,4 @@ int handle_quotes(t_token **tokens, char *str);
 t_token *lexer(char *input);
 t_token	*ft_lstlast(t_token *lst);
 t_token	*ft_lstlast(t_token *lst);
+void handle_expansion(t_token *list);

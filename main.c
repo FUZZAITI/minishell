@@ -144,7 +144,7 @@ WORD = 'aaa'sss|
 WORD = "ss"
 */
 
-int main()
+int main(int argc, char *argv[], char *envp[])
 {
     char *line;
     t_token *tokens_list;
@@ -156,7 +156,40 @@ int main()
         tokens_list = lexer(line);
         add_history(line);
         print_tokens(tokens_list);
-        //dar o free***************
+        handle_expansion(tokens_list);
         free(line);
     }
 }
+
+
+void handle_expansion(t_token *list)
+{
+  while (list != NULL)
+  {
+    if (strchr(list -> content,'$'))
+    {
+     //TODO
+    }
+    list = list->next; 
+  }
+}
+
+/*
+void expansion(char *token_content)
+{
+  int i;
+  int quotes;
+
+  quotes = 0;
+  i = 0;
+  while (token_content[i])
+  {
+    if (token_content[i] == '\'')
+      quotes = 1;
+    else if (token_content[i] == '\"')
+      quotes = 2;
+
+  }
+  
+}
+  */
