@@ -10,14 +10,23 @@ void add_token(t_token **list, char *word, char *type)
   add_list(list, token);
 }
 
-int handle_word(t_token **list, char *str) 
+int handle_word(t_token **tokens, char *str)
 {
     int i = 0;
+    int start = 0;
+    char *word;
+
     while (str[i] && !strchr(" |<>", str[i]))
-        i++;
-    
-    char *word = strndup(str, i); 
-    add_token(list, word, "WORD");
+    {
+        if (str[i] == '\'' || str[i] == '\"')
+        {
+            i += find_quote_end(&str[i], str[i]);
+        }
+        else
+            i++;
+    }
+    word = strndup(str, i);
+    add_token(tokens, word, "WORD");
     free(word);
     return (i);
 }
@@ -54,22 +63,14 @@ int handle_redirect(t_token **tokens, char *str)
   return (i + 1);
 }
 
-int handle_quotes(t_token **tokens, char *str)
+int find_quote_end(char *str, char quote)
 {
-  int i;
-  char *word;
-  
-  i = 1;
-  while (str[i] && str[i] != str[0])
-    i++; 
-  if (str[i + 1] != ' ' && str[i + 1] != '|' && str[i + 1] != '<' && str[i + 1] != '>' && str[i + 1] != '\"' && str[i + 1] != '\'')
-    i++; 
-  while (str[i] && !strchr(" |<>\"'", str[i]))
-        i++;  
-  word = strndup(str, (i + 1)); 
-  add_token(tokens, word, "WORD");
-  free(word);
-  return (i + 1);  
+    int i = 1;
+    while (str[i] && str[i] != quote)
+        i++;
+    if (str[i] == quote)
+        return (i + 1);
+    return (i);
 }
 
 void print_tokens(t_token *list)
@@ -98,16 +99,18 @@ t_token *lexer(char *input)
 
     while (input[i]) 
     {
-        while (input[i] == ' ' || (input[i] >= 9 && input[i] <= 13))
+        while (input[i] && (input[i] == ' ' || (input[i] >= 9 && input[i] <= 13)))
             i++; 
+        if (!input[i]) break;
 
         if (input[i] == '|')
-            add_token(&tokens, "|", "PIPE"), i++;
+        {
+            add_token(&tokens, "|", "PIPE");
+            i++;
+        }
         else if (input[i] == '>' || input[i] == '<')
             i += handle_redirect(&tokens, &input[i]);
-        else if (input[i] == '\'' || input[i] == '\"')
-            i += handle_quotes(&tokens, &input[i]);
-        else if (input[i])
+        else
             i += handle_word(&tokens, &input[i]);
     }
     return (tokens);
