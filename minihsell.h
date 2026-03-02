@@ -7,6 +7,10 @@
 
 //cc main.c -lreadline
 
+#define NORMAL 0
+#define S_QUOTE 1
+#define D_QUOTE 2
+
 typedef enum e_type {
     WORD,      
     PIPE,      

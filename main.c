@@ -75,9 +75,6 @@ int find_quote_end(char *str, char quote)
 
 void print_tokens(t_token *list)
 {
-  int i;
-
-  i = 0;
   if (!list)
   {
     printf("Lista vazia!\n");
@@ -88,7 +85,6 @@ void print_tokens(t_token *list)
     printf("%s = ",list -> type);
     printf("%s\n",list -> content );
     list = list->next; 
-    i++;
   }
 }
 
@@ -140,12 +136,36 @@ t_token	*ft_lstlast(t_token *lst)
 	return (lst);
 }
 
-/*
-***************************
-$Mine -> 'aaa'sss|"ss"
-WORD = 'aaa'sss|
-WORD = "ss"
-*/
+void pre_expenser(t_token *list)
+{
+  while (list != NULL)
+  {
+    if (strcmp(list -> type,"word") == 0)
+      handle_expenser(list -> content);
+    list = list->next;   
+  }
+}
+
+void handle_expenser(char *line)
+{
+  int i = 0;
+  int state = NORMAL;
+  
+  while (line[i])
+  {
+    if (line[i] == '\'' && state == NORMAL)
+      state = S_QUOTE;
+    else if (line[i] == '\'' && state == S_QUOTE)
+      state = NORMAL;
+    else if (line[i] == '\"' && state == NORMAL)
+      state = D_QUOTE;
+    else if (line[i] == '\"' && state == D_QUOTE)
+      state = NORMAL;
+    else if (line[i] == '$' && (state == D_QUOTE || state == NORMAL))
+      printf("expandir");
+    i++;  
+  }
+}
 
 int main(int argc, char *argv[], char *envp[])
 {
@@ -159,40 +179,8 @@ int main(int argc, char *argv[], char *envp[])
         tokens_list = lexer(line);
         add_history(line);
         print_tokens(tokens_list);
-        handle_expansion(tokens_list);
         free(line);
     }
 }
 
 
-void handle_expansion(t_token *list)
-{
-  while (list != NULL)
-  {
-    if (strchr(list -> content,'$'))
-    {
-     //TODO
-    }
-    list = list->next; 
-  }
-}
-
-/*
-void expansion(char *token_content)
-{
-  int i;
-  int quotes;
-
-  quotes = 0;
-  i = 0;
-  while (token_content[i])
-  {
-    if (token_content[i] == '\'')
-      quotes = 1;
-    else if (token_content[i] == '\"')
-      quotes = 2;
-
-  }
-  
-}
-  */
